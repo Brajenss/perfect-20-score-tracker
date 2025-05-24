@@ -60,20 +60,91 @@ const ActionPanel = ({
   };
 
   const getAvailableTargetPlayers = () => {
+    const currentPlayerObj = players.find(p => p.name === currentPlayer);
+    const availablePlayers = players.filter(player => player.name !== currentPlayer);
+    
     if (actionType === 'Steal') {
-      return players.filter(player => 
-        player.name !== currentPlayer && canStealFrom(currentPlayer, player.name)
+      return availablePlayers.filter(player => 
+        currentPlayerObj && currentPlayerObj.score > player.score && player.score >= actionPoints
       );
     }
-    return players.filter(player => player.name !== currentPlayer);
+    
+    if (actionType === 'Deduct') {
+      return availablePlayers.filter(player => 
+        currentPlayerObj && currentPlayerObj.score > player.score && player.score >= actionPoints
+      );
+    }
+    
+    if (actionType === 'Swap') {
+      return availablePlayers.filter(player => 
+        currentPlayerObj && currentPlayerObj.score > player.score
+      );
+    }
+    
+    return availablePlayers;
   };
 
   const isActionDisabled = () => {
     if (gameEnded) return true;
+    
+    const currentPlayerObj = players.find(p => p.name === currentPlayer);
+    const targetPlayerObj = players.find(p => p.name === targetPlayer);
+    
+    if (!currentPlayerObj || !targetPlayerObj) return true;
+    
     if (actionType === 'Steal') {
-      return !canStealFrom(currentPlayer, targetPlayer);
+      return !canStealFrom(currentPlayer, targetPlayer) || targetPlayerObj.score < actionPoints;
     }
+    
+    if (actionType === 'Deduct') {
+      return currentPlayerObj.score <= targetPlayerObj.score || targetPlayerObj.score < actionPoints;
+    }
+    
+    if (actionType === 'Swap') {
+      return currentPlayerObj.score <= targetPlayerObj.score;
+    }
+    
     return false;
+  };
+
+  const getActionMessage = () => {
+    const currentPlayerObj = players.find(p => p.name === currentPlayer);
+    const targetPlayerObj = players.find(p => p.name === targetPlayer);
+    
+    if (!currentPlayerObj || !targetPlayerObj) return '';
+    
+    if (actionType === 'Add') {
+      return `${actionPoints} point${actionPoints === 1 ? '' : 's'} will be added to ${currentPlayer}`;
+    }
+    
+    if (actionType === 'Deduct') {
+      if (currentPlayerObj.score <= targetPlayerObj.score) {
+        return `${currentPlayer} cannot deduct from ${targetPlayer} (target score must be lower)`;
+      }
+      if (targetPlayerObj.score < actionPoints) {
+        return `${targetPlayer} doesn't have enough points to deduct ${actionPoints}`;
+      }
+      return `${actionPoints} point${actionPoints === 1 ? '' : 's'} will be deducted from ${targetPlayer}`;
+    }
+    
+    if (actionType === 'Swap') {
+      if (currentPlayerObj.score <= targetPlayerObj.score) {
+        return `${currentPlayer} cannot swap with ${targetPlayer} (target score must be lower)`;
+      }
+      return `${currentPlayer} and ${targetPlayer} will swap their scores`;
+    }
+
+    if (actionType === 'Steal') {
+      if (!canStealFrom(currentPlayer, targetPlayer)) {
+        return `${currentPlayer} cannot steal from ${targetPlayer} (target score must be lower)`;
+      }
+      if (targetPlayerObj.score < actionPoints) {
+        return `${targetPlayer} doesn't have enough points for ${currentPlayer} to steal ${actionPoints}`;
+      }
+      return `${currentPlayer} will steal ${actionPoints} point${actionPoints === 1 ? '' : 's'} from ${targetPlayer}`;
+    }
+    
+    return '';
   };
 
   return (
@@ -158,32 +229,9 @@ const ActionPanel = ({
           </Button>
         </div>
 
-        {actionType === 'Add' && (
-          <p className="text-sm text-gray-600 mt-2">
-            {actionPoints} point{actionPoints === 1 ? '' : 's'} will be added to {currentPlayer}
-          </p>
-        )}
-        
-        {actionType === 'Deduct' && (
-          <p className="text-sm text-gray-600 mt-2">
-            {actionPoints} point{actionPoints === 1 ? '' : 's'} will be deducted from {targetPlayer}
-          </p>
-        )}
-        
-        {actionType === 'Swap' && (
-          <p className="text-sm text-gray-600 mt-2">
-            {currentPlayer} and {targetPlayer} will swap their scores
-          </p>
-        )}
-
-        {actionType === 'Steal' && (
-          <p className="text-sm text-gray-600 mt-2">
-            {canStealFrom(currentPlayer, targetPlayer) 
-              ? `${currentPlayer} will steal ${actionPoints} point${actionPoints === 1 ? '' : 's'} from ${targetPlayer}`
-              : `${currentPlayer} cannot steal from ${targetPlayer} (target score must be lower)`
-            }
-          </p>
-        )}
+        <p className="text-sm text-gray-600 mt-2">
+          {getActionMessage()}
+        </p>
       </CardContent>
     </Card>
   );

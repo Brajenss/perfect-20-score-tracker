@@ -2,15 +2,21 @@
 import { Plus, Minus, RotateCw } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Input } from './ui/input';
 import { Player } from './Perfect20Game';
+import { useState } from 'react';
 
 interface ScoreboardProps {
   players: Player[];
-  onQuickAction: (playerName: string, action: 'add' | 'deduct' | 'swap') => void;
+  onQuickAction: (playerName: string, action: 'add' | 'deduct' | 'swap', points?: number) => void;
   gameEnded: boolean;
 }
 
 const Scoreboard = ({ players, onQuickAction, gameEnded }: ScoreboardProps) => {
+  const [playerInputs, setPlayerInputs] = useState<Record<string, number>>(
+    players.reduce((acc, player) => ({ ...acc, [player.name]: 1 }), {})
+  );
+
   const getScoreColor = (score: number) => {
     if (score >= 20) return 'text-green-600 font-bold';
     if (score >= 15) return 'text-orange-600 font-semibold';
@@ -21,6 +27,28 @@ const Scoreboard = ({ players, onQuickAction, gameEnded }: ScoreboardProps) => {
     if (score >= 20) return 'bg-green-500';
     if (score >= 15) return 'bg-orange-500';
     return 'bg-blue-500';
+  };
+
+  const handleInputChange = (playerName: string, value: string) => {
+    const numValue = parseInt(value);
+    if (!isNaN(numValue)) {
+      setPlayerInputs(prev => ({
+        ...prev,
+        [playerName]: Math.max(1, Math.min(5, numValue))
+      }));
+    }
+  };
+
+  const handleAdd = (playerName: string) => {
+    onQuickAction(playerName, 'add', playerInputs[playerName]);
+  };
+
+  const handleDeduct = (playerName: string) => {
+    onQuickAction(playerName, 'deduct', playerInputs[playerName]);
+  };
+
+  const canDeduct = (player: Player, points: number) => {
+    return player.score >= points;
   };
 
   return (
@@ -38,7 +66,7 @@ const Scoreboard = ({ players, onQuickAction, gameEnded }: ScoreboardProps) => {
               className="flex items-center justify-between p-4 rounded-lg border bg-white hover:shadow-md transition-shadow"
             >
               <div className="flex items-center space-x-4 flex-1">
-                <div className="w-16">
+                <div className="w-20">
                   <h3 className="font-semibold text-gray-700">{player.name}</h3>
                 </div>
                 
@@ -62,18 +90,28 @@ const Scoreboard = ({ players, onQuickAction, gameEnded }: ScoreboardProps) => {
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => onQuickAction(player.name, 'add')}
+                  onClick={() => handleAdd(player.name)}
                   disabled={gameEnded || player.score >= 20}
                   className="hover:bg-green-50 hover:border-green-300"
                 >
                   <Plus className="w-4 h-4" />
                 </Button>
                 
+                <Input
+                  type="number"
+                  min="1"
+                  max="5"
+                  value={playerInputs[player.name] || 1}
+                  onChange={(e) => handleInputChange(player.name, e.target.value)}
+                  disabled={gameEnded}
+                  className="w-16 h-8 text-center text-sm"
+                />
+                
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => onQuickAction(player.name, 'deduct')}
-                  disabled={gameEnded || player.score <= 0}
+                  onClick={() => handleDeduct(player.name)}
+                  disabled={gameEnded || !canDeduct(player, playerInputs[player.name] || 1)}
                   className="hover:bg-red-50 hover:border-red-300"
                 >
                   <Minus className="w-4 h-4" />

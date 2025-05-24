@@ -1,7 +1,7 @@
-
 import { useState, useEffect } from 'react';
-import { Trophy, RefreshCw, Download } from 'lucide-react';
+import { Trophy, RefreshCw, Download, ChevronDown } from 'lucide-react';
 import { Button } from './ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import Scoreboard from './Scoreboard';
 import ActionPanel from './ActionPanel';
 import GameLog from './GameLog';
@@ -31,6 +31,7 @@ const Perfect20Game = () => {
   const [wins, setWins] = useState<Record<string, number>>({});
   const [showSetup, setShowSetup] = useState(true);
   const [showWinnerDialog, setShowWinnerDialog] = useState(false);
+  const [downloadFormat, setDownloadFormat] = useState<'txt' | 'pdf' | 'docx' | 'rtf'>('txt');
 
   // Load game state from localStorage
   useEffect(() => {
@@ -133,18 +134,22 @@ const Perfect20Game = () => {
         break;
       
       case 'Deduct':
-        updatePlayerScore(targetPlayer, targetPlayerObj.score - actionPoints);
-        addLogEntry(`${currentPlayer} deducted ${actionPoints} point${actionPoints === 1 ? '' : 's'} from ${targetPlayer}.`);
+        if (currentPlayerObj.score > targetPlayerObj.score && targetPlayerObj.score >= actionPoints) {
+          updatePlayerScore(targetPlayer, targetPlayerObj.score - actionPoints);
+          addLogEntry(`${currentPlayer} deducted ${actionPoints} point${actionPoints === 1 ? '' : 's'} from ${targetPlayer}.`);
+        }
         break;
       
       case 'Swap':
-        updatePlayerScore(currentPlayer, targetPlayerObj.score);
-        updatePlayerScore(targetPlayer, currentPlayerObj.score);
-        addLogEntry(`${currentPlayer} swapped scores with ${targetPlayer}.`);
+        if (currentPlayerObj.score > targetPlayerObj.score) {
+          updatePlayerScore(currentPlayer, targetPlayerObj.score);
+          updatePlayerScore(targetPlayer, currentPlayerObj.score);
+          addLogEntry(`${currentPlayer} swapped scores with ${targetPlayer}.`);
+        }
         break;
 
       case 'Steal':
-        if (canStealFrom(currentPlayer, targetPlayer)) {
+        if (canStealFrom(currentPlayer, targetPlayer) && targetPlayerObj.score >= actionPoints) {
           updatePlayerScore(currentPlayer, currentPlayerObj.score + actionPoints);
           updatePlayerScore(targetPlayer, targetPlayerObj.score - actionPoints);
           addLogEntry(`${currentPlayer} stole ${actionPoints} point${actionPoints === 1 ? '' : 's'} from ${targetPlayer}.`);
@@ -153,7 +158,7 @@ const Perfect20Game = () => {
     }
   };
 
-  const quickAction = (playerName: string, action: 'add' | 'deduct' | 'swap') => {
+  const quickAction = (playerName: string, action: 'add' | 'deduct' | 'swap', points: number = 1) => {
     if (winner) return;
 
     const playerObj = players.find(p => p.name === playerName);
@@ -161,13 +166,15 @@ const Perfect20Game = () => {
 
     switch (action) {
       case 'add':
-        updatePlayerScore(playerName, playerObj.score + 1);
-        addLogEntry(`${playerName} added 1 point to self.`);
+        updatePlayerScore(playerName, playerObj.score + points);
+        addLogEntry(`${playerName} added ${points} point${points === 1 ? '' : 's'} to self.`);
         break;
       
       case 'deduct':
-        updatePlayerScore(playerName, playerObj.score - 1);
-        addLogEntry(`${playerName} deducted 1 point from self.`);
+        if (playerObj.score >= points) {
+          updatePlayerScore(playerName, playerObj.score - points);
+          addLogEntry(`${playerName} deducted ${points} point${points === 1 ? '' : 's'} from self.`);
+        }
         break;
       
       case 'swap':
@@ -182,45 +189,47 @@ const Perfect20Game = () => {
     }
   };
 
-  const generatePDF = () => {
+  const generateDownload = () => {
     const currentDate = new Date().toLocaleDateString();
     const currentTime = new Date().toLocaleTimeString();
     
-    // Create PDF content
-    let pdfContent = `Perfect 20 Game Log\nGenerated on: ${currentDate} at ${currentTime}\n\n`;
+    let content = `Perfect 20 Game Log\nGenerated on: ${currentDate} at ${currentTime}\n\n`;
     
-    // Add wins tracker
-    pdfContent += 'WINS TRACKER:\n';
-    pdfContent += '=================\n';
+    content += 'WINS TRACKER:\n';
+    content += '=================\n';
     players.forEach(player => {
-      pdfContent += `${player.name}: ${wins[player.name] || 0} wins\n`;
+      content += `${player.name}: ${wins[player.name] || 0} wins\n`;
     });
     
-    // Add current scores
-    pdfContent += '\nCURRENT SCORES:\n';
-    pdfContent += '================\n';
+    content += '\nCURRENT SCORES:\n';
+    content += '================\n';
     players.forEach(player => {
-      pdfContent += `${player.name}: ${player.score} points\n`;
+      content += `${player.name}: ${player.score} points\n`;
     });
     
-    // Add game log
-    pdfContent += '\nGAME LOG:\n';
-    pdfContent += '==========\n';
+    content += '\nGAME LOG:\n';
+    content += '==========\n';
     if (gameLog.length === 0) {
-      pdfContent += 'No actions recorded yet.\n';
+      content += 'No actions recorded yet.\n';
     } else {
       gameLog.slice().reverse().forEach((action, index) => {
         const time = action.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        pdfContent += `${index + 1}. [${time}] ${action.description}\n`;
+        content += `${index + 1}. [${time}] ${action.description}\n`;
       });
     }
     
-    // Create and download the file
-    const blob = new Blob([pdfContent], { type: 'text/plain' });
+    const mimeTypes = {
+      txt: 'text/plain',
+      pdf: 'application/pdf',
+      docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      rtf: 'application/rtf'
+    };
+    
+    const blob = new Blob([content], { type: mimeTypes[downloadFormat] });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `perfect-20-game-log-${new Date().toISOString().split('T')[0]}.txt`;
+    a.download = `perfect-20-game-log-${new Date().toISOString().split('T')[0]}.${downloadFormat}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -267,7 +276,7 @@ const Perfect20Game = () => {
           <h1 className="text-4xl font-bold text-gray-800 mb-2">Perfect 20</h1>
           <p className="text-gray-600 mb-4">First player to reach exactly 20 points wins!</p>
           
-          <div className="flex justify-center gap-4">
+          <div className="flex justify-center gap-4 flex-wrap">
             <Button 
               onClick={startNewGame}
               disabled={!winner}
@@ -278,14 +287,28 @@ const Perfect20Game = () => {
               New Game
             </Button>
             
-            <Button 
-              onClick={generatePDF}
-              variant="outline"
-              className="flex items-center gap-2"
-            >
-              <Download className="w-4 h-4" />
-              Download Log
-            </Button>
+            <div className="flex items-center gap-2">
+              <Select value={downloadFormat} onValueChange={(value: 'txt' | 'pdf' | 'docx' | 'rtf') => setDownloadFormat(value)}>
+                <SelectTrigger className="w-20">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="txt">.txt</SelectItem>
+                  <SelectItem value="pdf">.pdf</SelectItem>
+                  <SelectItem value="docx">.docx</SelectItem>
+                  <SelectItem value="rtf">.rtf</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              <Button 
+                onClick={generateDownload}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <Download className="w-4 h-4" />
+                Download Log
+              </Button>
+            </div>
             
             <Button 
               onClick={resetEverything}
