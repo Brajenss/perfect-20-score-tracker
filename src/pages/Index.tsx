@@ -1,10 +1,10 @@
 
-import PointsTracker from '../components/PointsTracker';
+import Perfect20Game from '../components/Perfect20Game';
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
-      <PointsTracker />
+    <div className="min-h-screen">
+      <Perfect20Game />
     </div>
   );
 };
