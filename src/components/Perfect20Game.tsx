@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Trophy, RefreshCw } from 'lucide-react';
+import { Trophy, RefreshCw, Download } from 'lucide-react';
 import { Button } from './ui/button';
 import Scoreboard from './Scoreboard';
 import ActionPanel from './ActionPanel';
@@ -82,7 +82,8 @@ const Perfect20Game = () => {
     const newPlayers = playerNames.map(name => ({ name, score: 0 }));
     setPlayers(newPlayers);
     setCurrentPlayer(newPlayers[0].name);
-    setTargetPlayer(newPlayers[0].name);
+    setTargetPlayer(newPlayers.length > 1 ? newPlayers[1].name : newPlayers[0].name);
+    setActionPoints(1); // Initialize to 1
     setShowSetup(false);
     addLogEntry('Game started with players: ' + playerNames.join(', '));
   };
@@ -181,10 +182,56 @@ const Perfect20Game = () => {
     }
   };
 
+  const generatePDF = () => {
+    const currentDate = new Date().toLocaleDateString();
+    const currentTime = new Date().toLocaleTimeString();
+    
+    // Create PDF content
+    let pdfContent = `Perfect 20 Game Log\nGenerated on: ${currentDate} at ${currentTime}\n\n`;
+    
+    // Add wins tracker
+    pdfContent += 'WINS TRACKER:\n';
+    pdfContent += '=================\n';
+    players.forEach(player => {
+      pdfContent += `${player.name}: ${wins[player.name] || 0} wins\n`;
+    });
+    
+    // Add current scores
+    pdfContent += '\nCURRENT SCORES:\n';
+    pdfContent += '================\n';
+    players.forEach(player => {
+      pdfContent += `${player.name}: ${player.score} points\n`;
+    });
+    
+    // Add game log
+    pdfContent += '\nGAME LOG:\n';
+    pdfContent += '==========\n';
+    if (gameLog.length === 0) {
+      pdfContent += 'No actions recorded yet.\n';
+    } else {
+      gameLog.slice().reverse().forEach((action, index) => {
+        const time = action.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        pdfContent += `${index + 1}. [${time}] ${action.description}\n`;
+      });
+    }
+    
+    // Create and download the file
+    const blob = new Blob([pdfContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `perfect-20-game-log-${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const startNewGame = () => {
     setPlayers(prev => prev.map(player => ({ ...player, score: 0 })));
     setWinner(null);
     setShowWinnerDialog(false);
+    setActionPoints(1); // Reset to 1
     addLogEntry('New game started. All scores reset to 0.');
   };
 
@@ -195,6 +242,7 @@ const Perfect20Game = () => {
     setWins({});
     setShowSetup(true);
     setShowWinnerDialog(false);
+    setActionPoints(1); // Reset to 1
     localStorage.removeItem('perfect20_game');
   };
 
@@ -228,6 +276,15 @@ const Perfect20Game = () => {
             >
               <RefreshCw className="w-4 h-4" />
               New Game
+            </Button>
+            
+            <Button 
+              onClick={generatePDF}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <Download className="w-4 h-4" />
+              Download Log
             </Button>
             
             <Button 

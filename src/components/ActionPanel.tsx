@@ -35,8 +35,10 @@ const ActionPanel = ({
   canStealFrom
 }: ActionPanelProps) => {
   const handlePointsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value) || 1;
-    setActionPoints(Math.max(1, Math.min(10, value)));
+    const value = parseInt(e.target.value);
+    if (!isNaN(value)) {
+      setActionPoints(Math.max(1, Math.min(5, value)));
+    }
   };
 
   const handleCurrentPlayerChange = (player: string) => {
@@ -134,12 +136,12 @@ const ActionPanel = ({
         <div className="flex items-end gap-4">
           <div className="space-y-2 flex-1">
             <label className="text-sm font-medium text-gray-700">
-              Points (1-10) {(actionType === 'Swap') && '(ignored for swap)'}
+              Points (1-5) {(actionType === 'Swap') && '(ignored for swap)'}
             </label>
             <Input
               type="number"
               min="1"
-              max="10"
+              max="5"
               value={actionPoints}
               onChange={handlePointsChange}
               disabled={gameEnded || actionType === 'Swap'}
