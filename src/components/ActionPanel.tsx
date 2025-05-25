@@ -44,8 +44,8 @@ const ActionPanel = ({
     }
     
     const numValue = parseInt(value);
-    if (!isNaN(numValue)) {
-      setActionPoints(Math.max(1, Math.min(5, numValue)));
+    if (!isNaN(numValue) && numValue >= 1 && numValue <= 5) {
+      setActionPoints(numValue);
     }
   };
 

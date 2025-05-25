@@ -30,11 +30,20 @@ const Scoreboard = ({ players, onQuickAction, gameEnded }: ScoreboardProps) => {
   };
 
   const handleInputChange = (playerName: string, value: string) => {
-    const numValue = parseInt(value);
-    if (!isNaN(numValue)) {
+    // Allow empty input for better UX
+    if (value === '') {
       setPlayerInputs(prev => ({
         ...prev,
-        [playerName]: Math.max(1, Math.min(5, numValue))
+        [playerName]: 1
+      }));
+      return;
+    }
+    
+    const numValue = parseInt(value);
+    if (!isNaN(numValue) && numValue >= 1 && numValue <= 5) {
+      setPlayerInputs(prev => ({
+        ...prev,
+        [playerName]: numValue
       }));
     }
   };
@@ -103,6 +112,7 @@ const Scoreboard = ({ players, onQuickAction, gameEnded }: ScoreboardProps) => {
                   max="5"
                   value={playerInputs[player.name] || 1}
                   onChange={(e) => handleInputChange(player.name, e.target.value)}
+                  onFocus={(e) => e.target.select()}
                   disabled={gameEnded}
                   className="w-16 h-9 text-center text-sm border-slate-300 focus:border-blue-500"
                 />

@@ -36,7 +36,7 @@ const WinnerDialog = ({ isOpen, winner, onNewGame, onClose }: WinnerDialogProps)
           voice.name.toLowerCase().includes('aria') ||
           voice.name.toLowerCase().includes('sarah') ||
           voice.name.toLowerCase().includes('natural') ||
-          (voice.name.toLowerCase().includes('en') && voice.gender === 'female')
+          voice.name.toLowerCase().includes('en')
         );
         
         if (femaleVoice) {
