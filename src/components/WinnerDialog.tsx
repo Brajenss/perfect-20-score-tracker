@@ -17,12 +17,31 @@ const WinnerDialog = ({ isOpen, winner, onNewGame, onClose }: WinnerDialogProps)
     if (isOpen && winner) {
       const message = `${winner} wins Perfect 20! Congratulations on reaching exactly 20 points!`;
       
-      // Use Web Speech API to announce the winner
+      // Use Web Speech API to announce the winner with a realistic female voice
       if ('speechSynthesis' in window) {
         const utterance = new SpeechSynthesisUtterance(message);
-        utterance.rate = 0.8;
-        utterance.pitch = 1.2;
+        utterance.rate = 0.9;
+        utterance.pitch = 1.1;
         utterance.volume = 0.8;
+        
+        // Try to find a female voice that sounds natural
+        const voices = speechSynthesis.getVoices();
+        const femaleVoice = voices.find(voice => 
+          voice.name.toLowerCase().includes('female') ||
+          voice.name.toLowerCase().includes('woman') ||
+          voice.name.toLowerCase().includes('samantha') ||
+          voice.name.toLowerCase().includes('karen') ||
+          voice.name.toLowerCase().includes('susan') ||
+          voice.name.toLowerCase().includes('alex') ||
+          voice.name.toLowerCase().includes('aria') ||
+          voice.name.toLowerCase().includes('sarah') ||
+          voice.name.toLowerCase().includes('natural') ||
+          (voice.name.toLowerCase().includes('en') && voice.gender === 'female')
+        );
+        
+        if (femaleVoice) {
+          utterance.voice = femaleVoice;
+        }
         
         // Small delay to ensure the dialog is visible
         setTimeout(() => {

@@ -1,3 +1,4 @@
+
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
@@ -156,8 +157,8 @@ const ActionPanel = ({
 
   return (
     <Card className="shadow-xl border-slate-300 bg-gradient-to-br from-white to-slate-50">
-      <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-t-lg">
-        <CardTitle className="flex items-center gap-2 text-white">
+      <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50">
+        <CardTitle className="flex items-center gap-2 text-slate-800">
           🎮 Action Panel
         </CardTitle>
       </CardHeader>
@@ -166,7 +167,7 @@ const ActionPanel = ({
           <div className="space-y-2">
             <label className="text-sm font-semibold text-slate-700">Current Player</label>
             <Select value={currentPlayer} onValueChange={handleCurrentPlayerChange} disabled={gameEnded}>
-              <SelectTrigger className="border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
+              <SelectTrigger className="border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -182,7 +183,7 @@ const ActionPanel = ({
           <div className="space-y-2">
             <label className="text-sm font-semibold text-slate-700">Target Player</label>
             <Select value={targetPlayer} onValueChange={handleTargetPlayerChange} disabled={gameEnded}>
-              <SelectTrigger className="border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
+              <SelectTrigger className="border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -198,7 +199,7 @@ const ActionPanel = ({
           <div className="space-y-2">
             <label className="text-sm font-semibold text-slate-700">Action Type</label>
             <Select value={actionType} onValueChange={(value: 'Add' | 'Deduct' | 'Swap' | 'Steal') => setActionType(value)} disabled={gameEnded}>
-              <SelectTrigger className="border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
+              <SelectTrigger className="border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -217,14 +218,14 @@ const ActionPanel = ({
               Points (1-5) {(actionType === 'Swap') && '(ignored for swap)'}
             </label>
             <Input
-              type="text"
-              inputMode="numeric"
-              pattern="[1-5]"
+              type="number"
+              min="1"
+              max="5"
               value={actionPoints}
               onChange={handlePointsChange}
               onFocus={(e) => e.target.select()}
               disabled={gameEnded || actionType === 'Swap'}
-              className="w-full border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-center font-bold text-lg"
+              className="w-full border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-center font-bold text-lg"
               placeholder="1-5"
             />
           </div>
@@ -232,7 +233,7 @@ const ActionPanel = ({
           <Button 
             onClick={onApplyAction}
             disabled={isActionDisabled()}
-            className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-8 py-3 font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+            className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-8 py-3 font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
           >
             Apply Action
           </Button>
