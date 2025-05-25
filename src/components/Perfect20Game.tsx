@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Trophy, RefreshCw, Download } from 'lucide-react';
 import { Button } from './ui/button';
@@ -33,7 +32,7 @@ const Perfect20Game = () => {
   const [wins, setWins] = useState<Record<string, number>>({});
   const [showSetup, setShowSetup] = useState(true);
   const [showWinnerDialog, setShowWinnerDialog] = useState(false);
-  const [downloadFormat, setDownloadFormat] = useState<'txt' | 'pdf'>('txt');
+  const [downloadFormat, setDownloadFormat] = useState<'txt'>('txt');
   const [currentGameNumber, setCurrentGameNumber] = useState(1);
 
   // Load game state from localStorage
@@ -105,7 +104,6 @@ const Perfect20Game = () => {
   };
 
   const updatePlayerScore = (playerName: string, newScore: number) => {
-    // If score goes above 20, reset to 15
     const adjustedScore = newScore > 20 ? 15 : Math.max(0, newScore);
     
     setPlayers(prev => prev.map(player => 
@@ -208,16 +206,11 @@ const Perfect20Game = () => {
       });
     }
     
-    const mimeTypes = {
-      txt: 'text/plain',
-      pdf: 'text/plain'
-    };
-    
-    const blob = new Blob([content], { type: mimeTypes[downloadFormat] });
+    const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `perfect-20-game-log-${new Date().toISOString().split('T')[0]}.${downloadFormat}`;
+    a.download = `perfect-20-game-log-${new Date().toISOString().split('T')[0]}.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -229,6 +222,11 @@ const Perfect20Game = () => {
     setWinner(null);
     setShowWinnerDialog(false);
     setActionPoints(1);
+    
+    // Clear current game log entries
+    setGameLog(prev => prev.filter(log => log.gameNumber !== currentGameNumber));
+    
+    // Start new game
     setCurrentGameNumber(prev => prev + 1);
     addLogEntry('New game started. All scores reset to 0.');
   };
@@ -251,7 +249,7 @@ const Perfect20Game = () => {
 
   if (showSetup) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50">
         <PlayerSetupDialog 
           isOpen={showSetup} 
           onPlayersSetup={handlePlayersSetup}
@@ -261,10 +259,10 @@ const Perfect20Game = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-slate-600 to-blue-600 rounded-full mb-4 shadow-lg">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-indigo-600 to-purple-700 rounded-full mb-4 shadow-lg">
             <Trophy className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-4xl font-bold text-slate-800 mb-2">Perfect 20</h1>
@@ -273,7 +271,6 @@ const Perfect20Game = () => {
           <div className="flex justify-center gap-4 flex-wrap">
             <Button 
               onClick={startNewGame}
-              disabled={!winner}
               variant="outline"
               className="flex items-center gap-2 border-slate-300 hover:bg-slate-50"
             >
@@ -281,26 +278,14 @@ const Perfect20Game = () => {
               New Game
             </Button>
             
-            <div className="flex items-center gap-2">
-              <Select value={downloadFormat} onValueChange={(value: 'txt' | 'pdf') => setDownloadFormat(value)}>
-                <SelectTrigger className="w-20">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="txt">.txt</SelectItem>
-                  <SelectItem value="pdf">.pdf</SelectItem>
-                </SelectContent>
-              </Select>
-              
-              <Button 
-                onClick={generateDownload}
-                variant="outline"
-                className="flex items-center gap-2 border-slate-300 hover:bg-slate-50"
-              >
-                <Download className="w-4 h-4" />
-                Download Log
-              </Button>
-            </div>
+            <Button 
+              onClick={generateDownload}
+              variant="outline"
+              className="flex items-center gap-2 border-slate-300 hover:bg-slate-50"
+            >
+              <Download className="w-4 h-4" />
+              Download Log (.txt)
+            </Button>
             
             <Button 
               onClick={resetEverything}

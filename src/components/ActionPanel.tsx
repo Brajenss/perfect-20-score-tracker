@@ -1,4 +1,3 @@
-
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
@@ -35,9 +34,17 @@ const ActionPanel = ({
   canStealFrom
 }: ActionPanelProps) => {
   const handlePointsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value);
-    if (!isNaN(value)) {
-      setActionPoints(Math.max(1, Math.min(5, value)));
+    const value = e.target.value;
+    
+    // Allow empty input for better UX
+    if (value === '') {
+      setActionPoints(1);
+      return;
+    }
+    
+    const numValue = parseInt(value);
+    if (!isNaN(numValue)) {
+      setActionPoints(Math.max(1, Math.min(5, numValue)));
     }
   };
 
@@ -148,18 +155,18 @@ const ActionPanel = ({
   };
 
   return (
-    <Card className="shadow-lg border-slate-200">
-      <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50">
-        <CardTitle className="flex items-center gap-2 text-slate-800">
+    <Card className="shadow-xl border-slate-300 bg-gradient-to-br from-white to-slate-50">
+      <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-t-lg">
+        <CardTitle className="flex items-center gap-2 text-white">
           🎮 Action Panel
         </CardTitle>
       </CardHeader>
       <CardContent className="p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700">Current Player</label>
+            <label className="text-sm font-semibold text-slate-700">Current Player</label>
             <Select value={currentPlayer} onValueChange={handleCurrentPlayerChange} disabled={gameEnded}>
-              <SelectTrigger className="border-slate-300 focus:border-blue-500">
+              <SelectTrigger className="border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -173,9 +180,9 @@ const ActionPanel = ({
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700">Target Player</label>
+            <label className="text-sm font-semibold text-slate-700">Target Player</label>
             <Select value={targetPlayer} onValueChange={handleTargetPlayerChange} disabled={gameEnded}>
-              <SelectTrigger className="border-slate-300 focus:border-blue-500">
+              <SelectTrigger className="border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -189,9 +196,9 @@ const ActionPanel = ({
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700">Action Type</label>
+            <label className="text-sm font-semibold text-slate-700">Action Type</label>
             <Select value={actionType} onValueChange={(value: 'Add' | 'Deduct' | 'Swap' | 'Steal') => setActionType(value)} disabled={gameEnded}>
-              <SelectTrigger className="border-slate-300 focus:border-blue-500">
+              <SelectTrigger className="border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -206,30 +213,32 @@ const ActionPanel = ({
 
         <div className="flex items-end gap-4">
           <div className="space-y-2 flex-1">
-            <label className="text-sm font-medium text-slate-700">
+            <label className="text-sm font-semibold text-slate-700">
               Points (1-5) {(actionType === 'Swap') && '(ignored for swap)'}
             </label>
             <Input
-              type="number"
-              min="1"
-              max="5"
+              type="text"
+              inputMode="numeric"
+              pattern="[1-5]"
               value={actionPoints}
               onChange={handlePointsChange}
+              onFocus={(e) => e.target.select()}
               disabled={gameEnded || actionType === 'Swap'}
-              className="w-full border-slate-300 focus:border-blue-500"
+              className="w-full border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-center font-bold text-lg"
+              placeholder="1-5"
             />
           </div>
 
           <Button 
             onClick={onApplyAction}
             disabled={isActionDisabled()}
-            className="bg-gradient-to-r from-slate-600 to-blue-600 hover:from-slate-700 hover:to-blue-700 text-white px-8 shadow-lg"
+            className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-8 py-3 font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
           >
             Apply Action
           </Button>
         </div>
 
-        <p className="text-sm text-slate-600 mt-3 p-3 bg-slate-50 rounded-lg">
+        <p className="text-sm text-slate-600 mt-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
           {getActionMessage()}
         </p>
       </CardContent>

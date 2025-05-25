@@ -3,6 +3,7 @@ import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { Trophy } from 'lucide-react';
 import Confetti from './Confetti';
+import { useEffect } from 'react';
 
 interface WinnerDialogProps {
   isOpen: boolean;
@@ -12,6 +13,25 @@ interface WinnerDialogProps {
 }
 
 const WinnerDialog = ({ isOpen, winner, onNewGame, onClose }: WinnerDialogProps) => {
+  useEffect(() => {
+    if (isOpen && winner) {
+      const message = `${winner} wins Perfect 20! Congratulations on reaching exactly 20 points!`;
+      
+      // Use Web Speech API to announce the winner
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(message);
+        utterance.rate = 0.8;
+        utterance.pitch = 1.2;
+        utterance.volume = 0.8;
+        
+        // Small delay to ensure the dialog is visible
+        setTimeout(() => {
+          speechSynthesis.speak(utterance);
+        }, 500);
+      }
+    }
+  }, [isOpen, winner]);
+
   return (
     <>
       {isOpen && <Confetti />}
@@ -39,7 +59,7 @@ const WinnerDialog = ({ isOpen, winner, onNewGame, onClose }: WinnerDialogProps)
             <div className="flex gap-3 justify-center">
               <Button 
                 onClick={onNewGame}
-                className="bg-gradient-to-r from-slate-600 to-blue-600 hover:from-slate-700 hover:to-blue-700 text-white px-6 shadow-lg"
+                className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-6 shadow-lg"
               >
                 New Game
               </Button>
