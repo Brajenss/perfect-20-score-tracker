@@ -1,5 +1,6 @@
+
 import { useState, useEffect } from 'react';
-import { Trophy, RefreshCw, Download, ChevronDown } from 'lucide-react';
+import { Trophy, RefreshCw, Download } from 'lucide-react';
 import { Button } from './ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import Scoreboard from './Scoreboard';
@@ -18,6 +19,7 @@ export interface GameAction {
   id: string;
   timestamp: Date;
   description: string;
+  gameNumber: number;
 }
 
 const Perfect20Game = () => {
@@ -31,7 +33,8 @@ const Perfect20Game = () => {
   const [wins, setWins] = useState<Record<string, number>>({});
   const [showSetup, setShowSetup] = useState(true);
   const [showWinnerDialog, setShowWinnerDialog] = useState(false);
-  const [downloadFormat, setDownloadFormat] = useState<'txt' | 'pdf' | 'docx' | 'rtf'>('txt');
+  const [downloadFormat, setDownloadFormat] = useState<'txt' | 'pdf'>('txt');
+  const [currentGameNumber, setCurrentGameNumber] = useState(1);
 
   // Load game state from localStorage
   useEffect(() => {
@@ -49,6 +52,7 @@ const Perfect20Game = () => {
         timestamp: new Date(action.timestamp)
       })) || []);
       setWins(gameState.wins || {});
+      setCurrentGameNumber(gameState.currentGameNumber || 1);
     }
   }, []);
 
@@ -58,11 +62,12 @@ const Perfect20Game = () => {
       const gameState = {
         players,
         gameLog,
-        wins
+        wins,
+        currentGameNumber
       };
       localStorage.setItem('perfect20_game', JSON.stringify(gameState));
     }
-  }, [players, gameLog, wins]);
+  }, [players, gameLog, wins, currentGameNumber]);
 
   // Check for winner whenever scores change
   useEffect(() => {
@@ -84,7 +89,7 @@ const Perfect20Game = () => {
     setPlayers(newPlayers);
     setCurrentPlayer(newPlayers[0].name);
     setTargetPlayer(newPlayers.length > 1 ? newPlayers[1].name : newPlayers[0].name);
-    setActionPoints(1); // Initialize to 1
+    setActionPoints(1);
     setShowSetup(false);
     addLogEntry('Game started with players: ' + playerNames.join(', '));
   };
@@ -93,7 +98,8 @@ const Perfect20Game = () => {
     const newAction: GameAction = {
       id: Date.now().toString(),
       timestamp: new Date(),
-      description
+      description,
+      gameNumber: currentGameNumber
     };
     setGameLog(prev => [newAction, ...prev]);
   };
@@ -116,7 +122,7 @@ const Perfect20Game = () => {
   const canStealFrom = (stealerName: string, targetName: string) => {
     const stealer = players.find(p => p.name === stealerName);
     const target = players.find(p => p.name === targetName);
-    return stealer && target && stealer.score > target.score;
+    return stealer && target && stealer.score < target.score;
   };
 
   const applyAction = () => {
@@ -134,14 +140,14 @@ const Perfect20Game = () => {
         break;
       
       case 'Deduct':
-        if (currentPlayerObj.score > targetPlayerObj.score && targetPlayerObj.score >= actionPoints) {
+        if (currentPlayerObj.score < targetPlayerObj.score && targetPlayerObj.score >= actionPoints) {
           updatePlayerScore(targetPlayer, targetPlayerObj.score - actionPoints);
           addLogEntry(`${currentPlayer} deducted ${actionPoints} point${actionPoints === 1 ? '' : 's'} from ${targetPlayer}.`);
         }
         break;
       
       case 'Swap':
-        if (currentPlayerObj.score > targetPlayerObj.score) {
+        if (currentPlayerObj.score < targetPlayerObj.score) {
           updatePlayerScore(currentPlayer, targetPlayerObj.score);
           updatePlayerScore(targetPlayer, currentPlayerObj.score);
           addLogEntry(`${currentPlayer} swapped scores with ${targetPlayer}.`);
@@ -158,7 +164,7 @@ const Perfect20Game = () => {
     }
   };
 
-  const quickAction = (playerName: string, action: 'add' | 'deduct' | 'swap', points: number = 1) => {
+  const quickAction = (playerName: string, action: 'add' | 'deduct', points: number = 1) => {
     if (winner) return;
 
     const playerObj = players.find(p => p.name === playerName);
@@ -176,16 +182,6 @@ const Perfect20Game = () => {
           addLogEntry(`${playerName} deducted ${points} point${points === 1 ? '' : 's'} from self.`);
         }
         break;
-      
-      case 'swap':
-        const currentIndex = players.findIndex(p => p.name === playerName);
-        const nextIndex = (currentIndex + 1) % players.length;
-        const nextPlayer = players[nextIndex];
-        
-        updatePlayerScore(playerName, nextPlayer.score);
-        updatePlayerScore(nextPlayer.name, playerObj.score);
-        addLogEntry(`${playerName} swapped scores with ${nextPlayer.name}.`);
-        break;
     }
   };
 
@@ -201,12 +197,6 @@ const Perfect20Game = () => {
       content += `${player.name}: ${wins[player.name] || 0} wins\n`;
     });
     
-    content += '\nCURRENT SCORES:\n';
-    content += '================\n';
-    players.forEach(player => {
-      content += `${player.name}: ${player.score} points\n`;
-    });
-    
     content += '\nGAME LOG:\n';
     content += '==========\n';
     if (gameLog.length === 0) {
@@ -214,15 +204,13 @@ const Perfect20Game = () => {
     } else {
       gameLog.slice().reverse().forEach((action, index) => {
         const time = action.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        content += `${index + 1}. [${time}] ${action.description}\n`;
+        content += `${index + 1}. [Game ${action.gameNumber}] [${time}] ${action.description}\n`;
       });
     }
     
     const mimeTypes = {
       txt: 'text/plain',
-      pdf: 'application/pdf',
-      docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      rtf: 'application/rtf'
+      pdf: 'text/plain'
     };
     
     const blob = new Blob([content], { type: mimeTypes[downloadFormat] });
@@ -240,7 +228,8 @@ const Perfect20Game = () => {
     setPlayers(prev => prev.map(player => ({ ...player, score: 0 })));
     setWinner(null);
     setShowWinnerDialog(false);
-    setActionPoints(1); // Reset to 1
+    setActionPoints(1);
+    setCurrentGameNumber(prev => prev + 1);
     addLogEntry('New game started. All scores reset to 0.');
   };
 
@@ -251,13 +240,18 @@ const Perfect20Game = () => {
     setWins({});
     setShowSetup(true);
     setShowWinnerDialog(false);
-    setActionPoints(1); // Reset to 1
+    setActionPoints(1);
+    setCurrentGameNumber(1);
     localStorage.removeItem('perfect20_game');
+  };
+
+  const closeWinnerDialog = () => {
+    setShowWinnerDialog(false);
   };
 
   if (showSetup) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
         <PlayerSetupDialog 
           isOpen={showSetup} 
           onPlayersSetup={handlePlayersSetup}
@@ -267,43 +261,41 @@ const Perfect20Game = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-slate-600 to-blue-600 rounded-full mb-4 shadow-lg">
             <Trophy className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">Perfect 20</h1>
-          <p className="text-gray-600 mb-4">First player to reach exactly 20 points wins!</p>
+          <h1 className="text-4xl font-bold text-slate-800 mb-2">Perfect 20</h1>
+          <p className="text-slate-600 mb-4">First player to reach exactly 20 points wins!</p>
           
           <div className="flex justify-center gap-4 flex-wrap">
             <Button 
               onClick={startNewGame}
               disabled={!winner}
               variant="outline"
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 border-slate-300 hover:bg-slate-50"
             >
               <RefreshCw className="w-4 h-4" />
               New Game
             </Button>
             
             <div className="flex items-center gap-2">
-              <Select value={downloadFormat} onValueChange={(value: 'txt' | 'pdf' | 'docx' | 'rtf') => setDownloadFormat(value)}>
+              <Select value={downloadFormat} onValueChange={(value: 'txt' | 'pdf') => setDownloadFormat(value)}>
                 <SelectTrigger className="w-20">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="txt">.txt</SelectItem>
                   <SelectItem value="pdf">.pdf</SelectItem>
-                  <SelectItem value="docx">.docx</SelectItem>
-                  <SelectItem value="rtf">.rtf</SelectItem>
                 </SelectContent>
               </Select>
               
               <Button 
                 onClick={generateDownload}
                 variant="outline"
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 border-slate-300 hover:bg-slate-50"
               >
                 <Download className="w-4 h-4" />
                 Download Log
@@ -313,7 +305,7 @@ const Perfect20Game = () => {
             <Button 
               onClick={resetEverything}
               variant="destructive"
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 bg-red-600 hover:bg-red-700"
             >
               <RefreshCw className="w-4 h-4" />
               Reset Everything
@@ -345,7 +337,7 @@ const Perfect20Game = () => {
           </div>
           
           <div className="space-y-6">
-            <GameLog gameLog={gameLog} />
+            <GameLog gameLog={gameLog.filter(log => log.gameNumber === currentGameNumber)} />
             <WinsTracker 
               players={players.map(p => p.name)} 
               wins={wins} 
@@ -358,6 +350,7 @@ const Perfect20Game = () => {
         isOpen={showWinnerDialog}
         winner={winner || ''}
         onNewGame={startNewGame}
+        onClose={closeWinnerDialog}
       />
     </div>
   );

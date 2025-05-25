@@ -65,19 +65,19 @@ const ActionPanel = ({
     
     if (actionType === 'Steal') {
       return availablePlayers.filter(player => 
-        currentPlayerObj && currentPlayerObj.score > player.score && player.score >= actionPoints
+        currentPlayerObj && currentPlayerObj.score < player.score && player.score >= actionPoints
       );
     }
     
     if (actionType === 'Deduct') {
       return availablePlayers.filter(player => 
-        currentPlayerObj && currentPlayerObj.score > player.score && player.score >= actionPoints
+        currentPlayerObj && currentPlayerObj.score < player.score && player.score >= actionPoints
       );
     }
     
     if (actionType === 'Swap') {
       return availablePlayers.filter(player => 
-        currentPlayerObj && currentPlayerObj.score > player.score
+        currentPlayerObj && currentPlayerObj.score < player.score
       );
     }
     
@@ -97,11 +97,11 @@ const ActionPanel = ({
     }
     
     if (actionType === 'Deduct') {
-      return currentPlayerObj.score <= targetPlayerObj.score || targetPlayerObj.score < actionPoints;
+      return currentPlayerObj.score >= targetPlayerObj.score || targetPlayerObj.score < actionPoints;
     }
     
     if (actionType === 'Swap') {
-      return currentPlayerObj.score <= targetPlayerObj.score;
+      return currentPlayerObj.score >= targetPlayerObj.score;
     }
     
     return false;
@@ -118,8 +118,8 @@ const ActionPanel = ({
     }
     
     if (actionType === 'Deduct') {
-      if (currentPlayerObj.score <= targetPlayerObj.score) {
-        return `${currentPlayer} cannot deduct from ${targetPlayer} (target score must be lower)`;
+      if (currentPlayerObj.score >= targetPlayerObj.score) {
+        return `${currentPlayer} cannot deduct from ${targetPlayer} (your score must be lower than target)`;
       }
       if (targetPlayerObj.score < actionPoints) {
         return `${targetPlayer} doesn't have enough points to deduct ${actionPoints}`;
@@ -128,15 +128,15 @@ const ActionPanel = ({
     }
     
     if (actionType === 'Swap') {
-      if (currentPlayerObj.score <= targetPlayerObj.score) {
-        return `${currentPlayer} cannot swap with ${targetPlayer} (target score must be lower)`;
+      if (currentPlayerObj.score >= targetPlayerObj.score) {
+        return `${currentPlayer} cannot swap with ${targetPlayer} (your score must be lower than target)`;
       }
       return `${currentPlayer} and ${targetPlayer} will swap their scores`;
     }
 
     if (actionType === 'Steal') {
       if (!canStealFrom(currentPlayer, targetPlayer)) {
-        return `${currentPlayer} cannot steal from ${targetPlayer} (target score must be lower)`;
+        return `${currentPlayer} cannot steal from ${targetPlayer} (your score must be lower than target)`;
       }
       if (targetPlayerObj.score < actionPoints) {
         return `${targetPlayer} doesn't have enough points for ${currentPlayer} to steal ${actionPoints}`;
@@ -148,18 +148,18 @@ const ActionPanel = ({
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+    <Card className="shadow-lg border-slate-200">
+      <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50">
+        <CardTitle className="flex items-center gap-2 text-slate-800">
           🎮 Action Panel
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">Current Player</label>
+            <label className="text-sm font-medium text-slate-700">Current Player</label>
             <Select value={currentPlayer} onValueChange={handleCurrentPlayerChange} disabled={gameEnded}>
-              <SelectTrigger>
+              <SelectTrigger className="border-slate-300 focus:border-blue-500">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -173,9 +173,9 @@ const ActionPanel = ({
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">Target Player</label>
+            <label className="text-sm font-medium text-slate-700">Target Player</label>
             <Select value={targetPlayer} onValueChange={handleTargetPlayerChange} disabled={gameEnded}>
-              <SelectTrigger>
+              <SelectTrigger className="border-slate-300 focus:border-blue-500">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -189,9 +189,9 @@ const ActionPanel = ({
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">Action Type</label>
+            <label className="text-sm font-medium text-slate-700">Action Type</label>
             <Select value={actionType} onValueChange={(value: 'Add' | 'Deduct' | 'Swap' | 'Steal') => setActionType(value)} disabled={gameEnded}>
-              <SelectTrigger>
+              <SelectTrigger className="border-slate-300 focus:border-blue-500">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -206,7 +206,7 @@ const ActionPanel = ({
 
         <div className="flex items-end gap-4">
           <div className="space-y-2 flex-1">
-            <label className="text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-slate-700">
               Points (1-5) {(actionType === 'Swap') && '(ignored for swap)'}
             </label>
             <Input
@@ -216,20 +216,20 @@ const ActionPanel = ({
               value={actionPoints}
               onChange={handlePointsChange}
               disabled={gameEnded || actionType === 'Swap'}
-              className="w-full"
+              className="w-full border-slate-300 focus:border-blue-500"
             />
           </div>
 
           <Button 
             onClick={onApplyAction}
             disabled={isActionDisabled()}
-            className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white px-8"
+            className="bg-gradient-to-r from-slate-600 to-blue-600 hover:from-slate-700 hover:to-blue-700 text-white px-8 shadow-lg"
           >
             Apply Action
           </Button>
         </div>
 
-        <p className="text-sm text-gray-600 mt-2">
+        <p className="text-sm text-slate-600 mt-3 p-3 bg-slate-50 rounded-lg">
           {getActionMessage()}
         </p>
       </CardContent>
