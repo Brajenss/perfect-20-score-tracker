@@ -1,4 +1,3 @@
-
 import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { Trophy } from 'lucide-react';
@@ -15,7 +14,7 @@ interface WinnerDialogProps {
 const WinnerDialog = ({ isOpen, winner, onNewGame, onClose }: WinnerDialogProps) => {
   useEffect(() => {
     if (isOpen && winner) {
-      const message = `${winner} wins Perfect 20! Congratulations on reaching exactly 20 points!`;
+      const message = `${winner} wins Perfect 20!`;
       
       // Use Web Speech API to announce the winner with an Indian male voice
       if ('speechSynthesis' in window) {
@@ -65,13 +64,9 @@ const WinnerDialog = ({ isOpen, winner, onNewGame, onClose }: WinnerDialogProps)
               <Trophy className="w-10 h-10 text-white" />
             </div>
             
-            <h2 className="text-2xl font-bold text-slate-800 mb-2">
+            <h2 className="text-2xl font-bold text-slate-800 mb-6">
               {winner} wins Perfect 20!
             </h2>
-            
-            <p className="text-slate-600 mb-6">
-              Congratulations on reaching exactly 20 points!
-            </p>
             
             <div className="flex gap-3 justify-center">
               <Button 

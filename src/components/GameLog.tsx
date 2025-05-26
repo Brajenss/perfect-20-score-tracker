@@ -15,7 +15,7 @@ const GameLog = ({ gameLog }: GameLogProps) => {
     <Card className="h-fit">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          📝 Game Log
+          📝 All Games Log
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -30,7 +30,9 @@ const GameLog = ({ gameLog }: GameLogProps) => {
               >
                 <span className="text-green-600 font-bold">✓</span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-700 break-words">{action.description}</p>
+                  <p className="text-sm text-gray-700 break-words">
+                    <span className="font-medium text-blue-600">[Game {action.gameNumber}]</span> {action.description}
+                  </p>
                   <p className="text-xs text-gray-500 mt-1">{formatTime(action.timestamp)}</p>
                 </div>
               </div>

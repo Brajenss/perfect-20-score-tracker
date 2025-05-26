@@ -14,11 +14,13 @@ const PlayerSetupDialog = ({ isOpen, onPlayersSetup }: PlayerSetupDialogProps) =
   const [step, setStep] = useState<'count' | 'names'>('count');
   const [playerCount, setPlayerCount] = useState('');
   const [playerNames, setPlayerNames] = useState<string[]>([]);
+  const [nameErrors, setNameErrors] = useState<string[]>([]);
 
   const handlePlayerCountSubmit = () => {
     const count = parseInt(playerCount);
     if (count && count >= 2 && count <= 10) {
       setPlayerNames(Array(count).fill(''));
+      setNameErrors(Array(count).fill(''));
       setStep('names');
     }
   };
@@ -27,20 +29,40 @@ const PlayerSetupDialog = ({ isOpen, onPlayersSetup }: PlayerSetupDialogProps) =
     const newNames = [...playerNames];
     newNames[index] = name;
     setPlayerNames(newNames);
+
+    // Check for duplicate names (case-insensitive)
+    const newErrors = [...nameErrors];
+    const trimmedName = name.trim().toLowerCase();
+    
+    if (trimmedName === '') {
+      newErrors[index] = '';
+    } else {
+      const isDuplicate = newNames.some((otherName, otherIndex) => 
+        otherIndex !== index && 
+        otherName.trim().toLowerCase() === trimmedName
+      );
+      newErrors[index] = isDuplicate ? 'This name is already taken' : '';
+    }
+    
+    setNameErrors(newErrors);
   };
 
   const handleNamesSubmit = () => {
-    if (playerNames.every(name => name.trim() !== '')) {
-      onPlayersSetup(playerNames);
+    const hasEmptyNames = playerNames.some(name => name.trim() === '');
+    const hasErrors = nameErrors.some(error => error !== '');
+    
+    if (!hasEmptyNames && !hasErrors) {
+      onPlayersSetup(playerNames.map(name => name.trim()));
       setStep('count');
       setPlayerCount('');
       setPlayerNames([]);
+      setNameErrors([]);
     }
   };
 
   const canProceed = step === 'count' 
     ? playerCount && parseInt(playerCount) >= 2 && parseInt(playerCount) <= 10
-    : playerNames.every(name => name.trim() !== '');
+    : playerNames.every(name => name.trim() !== '') && nameErrors.every(error => error === '');
 
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
@@ -92,8 +114,11 @@ const PlayerSetupDialog = ({ isOpen, onPlayersSetup }: PlayerSetupDialogProps) =
                       value={name}
                       onChange={(e) => handlePlayerNameChange(index, e.target.value)}
                       placeholder={`Enter name for player ${index + 1}`}
-                      className="mt-1"
+                      className={`mt-1 ${nameErrors[index] ? 'border-red-500' : ''}`}
                     />
+                    {nameErrors[index] && (
+                      <p className="text-sm text-red-500 mt-1">{nameErrors[index]}</p>
+                    )}
                   </div>
                 ))}
                 <Button 

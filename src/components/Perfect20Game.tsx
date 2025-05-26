@@ -223,10 +223,7 @@ const Perfect20Game = () => {
     setShowWinnerDialog(false);
     setActionPoints(1);
     
-    // Clear current game log entries
-    setGameLog(prev => prev.filter(log => log.gameNumber !== currentGameNumber));
-    
-    // Start new game
+    // Don't clear game log - preserve logs from all games
     setCurrentGameNumber(prev => prev + 1);
     addLogEntry('New game started. All scores reset to 0.');
   };
@@ -322,7 +319,7 @@ const Perfect20Game = () => {
           </div>
           
           <div className="space-y-6">
-            <GameLog gameLog={gameLog.filter(log => log.gameNumber === currentGameNumber)} />
+            <GameLog gameLog={gameLog} />
             <WinsTracker 
               players={players.map(p => p.name)} 
               wins={wins} 
