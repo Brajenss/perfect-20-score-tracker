@@ -11,8 +11,8 @@ interface ActionPanelProps {
   setCurrentPlayer: (player: string) => void;
   targetPlayer: string;
   setTargetPlayer: (player: string) => void;
-  actionType: 'Add' | 'Deduct' | 'Swap' | 'Steal';
-  setActionType: (type: 'Add' | 'Deduct' | 'Swap' | 'Steal') => void;
+  actionType: 'Add' | 'Add to Target' | 'Deduct' | 'Swap' | 'Steal';
+  setActionType: (type: 'Add' | 'Add to Target' | 'Deduct' | 'Swap' | 'Steal') => void;
   actionPoints: number;
   setActionPoints: (points: number) => void;
   onApplyAction: () => void;
@@ -71,6 +71,12 @@ const ActionPanel = ({
     const currentPlayerObj = players.find(p => p.name === currentPlayer);
     const availablePlayers = players.filter(player => player.name !== currentPlayer);
     
+    if (actionType === 'Add to Target') {
+      return availablePlayers.filter(player => 
+        currentPlayerObj && currentPlayerObj.score < player.score
+      );
+    }
+    
     if (actionType === 'Steal') {
       return availablePlayers.filter(player => 
         currentPlayerObj && currentPlayerObj.score < player.score && player.score >= actionPoints
@@ -100,6 +106,10 @@ const ActionPanel = ({
     
     if (!currentPlayerObj || !targetPlayerObj) return true;
     
+    if (actionType === 'Add to Target') {
+      return currentPlayerObj.score >= targetPlayerObj.score;
+    }
+    
     if (actionType === 'Steal') {
       return !canStealFrom(currentPlayer, targetPlayer) || targetPlayerObj.score < actionPoints;
     }
@@ -123,6 +133,13 @@ const ActionPanel = ({
     
     if (actionType === 'Add') {
       return `${actionPoints} point${actionPoints === 1 ? '' : 's'} will be added to ${currentPlayer}`;
+    }
+    
+    if (actionType === 'Add to Target') {
+      if (currentPlayerObj.score >= targetPlayerObj.score) {
+        return `${currentPlayer} cannot add points to ${targetPlayer} (your score must be lower than target)`;
+      }
+      return `${currentPlayer} will add ${actionPoints} point${actionPoints === 1 ? '' : 's'} to ${targetPlayer}`;
     }
     
     if (actionType === 'Deduct') {
@@ -198,12 +215,13 @@ const ActionPanel = ({
 
           <div className="space-y-2">
             <label className="text-sm font-semibold text-slate-700">Action Type</label>
-            <Select value={actionType} onValueChange={(value: 'Add' | 'Deduct' | 'Swap' | 'Steal') => setActionType(value)} disabled={gameEnded}>
+            <Select value={actionType} onValueChange={(value: 'Add' | 'Add to Target' | 'Deduct' | 'Swap' | 'Steal') => setActionType(value)} disabled={gameEnded}>
               <SelectTrigger className="border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="Add">➕ Add Points</SelectItem>
+                <SelectItem value="Add to Target">🎁 Add to Target</SelectItem>
                 <SelectItem value="Deduct">➖ Deduct Points</SelectItem>
                 <SelectItem value="Swap">🔄 Swap Scores</SelectItem>
                 <SelectItem value="Steal">🎯 Steal Points</SelectItem>
