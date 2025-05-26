@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Trophy, RefreshCw, Download } from 'lucide-react';
 import { Button } from './ui/button';
@@ -26,7 +25,7 @@ const Perfect20Game = () => {
   const [players, setPlayers] = useState<Player[]>([]);
   const [currentPlayer, setCurrentPlayer] = useState('');
   const [targetPlayer, setTargetPlayer] = useState('');
-  const [actionType, setActionType] = useState<'Add' | 'Add to Target' | 'Deduct' | 'Swap' | 'Steal'>('Add');
+  const [actionType, setActionType] = useState<'Add to Target' | 'Deduct' | 'Swap' | 'Steal'>('Add to Target');
   const [actionPoints, setActionPoints] = useState(1);
   const [gameLog, setGameLog] = useState<GameAction[]>([]);
   const [winner, setWinner] = useState<string | null>(null);
@@ -133,11 +132,6 @@ const Perfect20Game = () => {
     if (!currentPlayerObj || !targetPlayerObj) return;
 
     switch (actionType) {
-      case 'Add':
-        updatePlayerScore(currentPlayer, currentPlayerObj.score + actionPoints);
-        addLogEntry(`${currentPlayer} added ${actionPoints} point${actionPoints === 1 ? '' : 's'} to self.`);
-        break;
-      
       case 'Add to Target':
         if (currentPlayerObj.score < targetPlayerObj.score) {
           updatePlayerScore(targetPlayer, targetPlayerObj.score + actionPoints);

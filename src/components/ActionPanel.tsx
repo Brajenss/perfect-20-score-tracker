@@ -1,4 +1,3 @@
-
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
@@ -11,8 +10,8 @@ interface ActionPanelProps {
   setCurrentPlayer: (player: string) => void;
   targetPlayer: string;
   setTargetPlayer: (player: string) => void;
-  actionType: 'Add' | 'Add to Target' | 'Deduct' | 'Swap' | 'Steal';
-  setActionType: (type: 'Add' | 'Add to Target' | 'Deduct' | 'Swap' | 'Steal') => void;
+  actionType: 'Add to Target' | 'Deduct' | 'Swap' | 'Steal';
+  setActionType: (type: 'Add to Target' | 'Deduct' | 'Swap' | 'Steal') => void;
   actionPoints: number;
   setActionPoints: (points: number) => void;
   onApplyAction: () => void;
@@ -131,10 +130,6 @@ const ActionPanel = ({
     
     if (!currentPlayerObj || !targetPlayerObj) return '';
     
-    if (actionType === 'Add') {
-      return `${actionPoints} point${actionPoints === 1 ? '' : 's'} will be added to ${currentPlayer}`;
-    }
-    
     if (actionType === 'Add to Target') {
       if (currentPlayerObj.score >= targetPlayerObj.score) {
         return `${currentPlayer} cannot add points to ${targetPlayer} (your score must be lower than target)`;
@@ -144,7 +139,7 @@ const ActionPanel = ({
     
     if (actionType === 'Deduct') {
       if (currentPlayerObj.score >= targetPlayerObj.score) {
-        return `${currentPlayer} cannot deduct from ${targetPlayer} (your score must be lower than target)`;
+        return `${currentPlayer} cannot deduct points from ${targetPlayer} (your score must be lower than target)`;
       }
       if (targetPlayerObj.score < actionPoints) {
         return `${targetPlayer} doesn't have enough points to deduct ${actionPoints}`;
@@ -154,14 +149,14 @@ const ActionPanel = ({
     
     if (actionType === 'Swap') {
       if (currentPlayerObj.score >= targetPlayerObj.score) {
-        return `${currentPlayer} cannot swap with ${targetPlayer} (your score must be lower than target)`;
+        return `${currentPlayer} cannot swap score with ${targetPlayer} (your score must be lower than target)`;
       }
       return `${currentPlayer} and ${targetPlayer} will swap their scores`;
     }
 
     if (actionType === 'Steal') {
       if (!canStealFrom(currentPlayer, targetPlayer)) {
-        return `${currentPlayer} cannot steal from ${targetPlayer} (your score must be lower than target)`;
+        return `${currentPlayer} cannot steal points from ${targetPlayer} (your score must be lower than target)`;
       }
       if (targetPlayerObj.score < actionPoints) {
         return `${targetPlayer} doesn't have enough points for ${currentPlayer} to steal ${actionPoints}`;
@@ -215,14 +210,13 @@ const ActionPanel = ({
 
           <div className="space-y-2">
             <label className="text-sm font-semibold text-slate-700">Action Type</label>
-            <Select value={actionType} onValueChange={(value: 'Add' | 'Add to Target' | 'Deduct' | 'Swap' | 'Steal') => setActionType(value)} disabled={gameEnded}>
+            <Select value={actionType} onValueChange={(value: 'Add to Target' | 'Deduct' | 'Swap' | 'Steal') => setActionType(value)} disabled={gameEnded}>
               <SelectTrigger className="border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Add">➕ Add Points</SelectItem>
                 <SelectItem value="Add to Target">🎁 Add to Target</SelectItem>
-                <SelectItem value="Deduct">➖ Deduct Points</SelectItem>
+                <SelectItem value="Deduct">⚡ Deduct from Target</SelectItem>
                 <SelectItem value="Swap">🔄 Swap Scores</SelectItem>
                 <SelectItem value="Steal">🎯 Steal Points</SelectItem>
               </SelectContent>
