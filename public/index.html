@@ -1,0 +1,51 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Perfect 20 Game</title>
+    <meta name="description" content="Perfect 20 Score Keeper Game" />
+    
+    <!-- Ensure proper rendering on all devices -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <!-- Add fallback for older browsers -->
+    <script>
+      // Polyfill for older browsers
+      if (!window.Promise) {
+        document.write('<script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"><\/script>');
+      }
+    </script>
+  </head>
+
+  <body>
+    <div id="root">
+      <!-- Fallback content for users with JavaScript disabled -->
+      <noscript>
+        <div style="text-align: center; padding: 50px; font-family: Arial, sans-serif;">
+          <h1>Perfect 20 Game</h1>
+          <p>Please enable JavaScript to play the game.</p>
+        </div>
+      </noscript>
+      
+      <!-- Loading indicator -->
+      <div id="loading" style="text-align: center; padding: 50px; font-family: Arial, sans-serif;">
+        <h2>Loading Perfect 20 Game...</h2>
+        <p>Please wait while the game loads.</p>
+      </div>
+    </div>
+    
+    <!-- Remove the loading indicator once React loads -->
+    <script>
+      window.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+          const loading = document.getElementById('loading');
+          if (loading && document.querySelector('[data-reactroot], #root > div')) {
+            loading.style.display = 'none';
+          }
+        }, 1000);
+      });
+    </script>
+  </body>
+</html>
