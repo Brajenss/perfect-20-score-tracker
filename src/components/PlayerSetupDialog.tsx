@@ -69,15 +69,15 @@ const PlayerSetupDialog = ({ isOpen, onPlayersSetup }: PlayerSetupDialogProps) =
 
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-md max-h-[90vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle className="text-center">
             {step === 'count' ? 'How many players?' : 'Enter player names'}
           </DialogTitle>
         </DialogHeader>
         
         {step === 'count' ? (
-          <Card>
+          <Card className="flex-1">
             <CardContent className="p-6">
               <div className="space-y-4">
                 <div>
@@ -105,9 +105,9 @@ const PlayerSetupDialog = ({ isOpen, onPlayersSetup }: PlayerSetupDialogProps) =
             </CardContent>
           </Card>
         ) : (
-          <Card>
-            <CardContent className="p-6">
-              <div className="space-y-4 max-h-80 overflow-y-auto">
+          <Card className="flex-1 min-h-0">
+            <CardContent className="p-6 h-full flex flex-col">
+              <div className="flex-1 overflow-y-auto space-y-4 pb-4">
                 {playerNames.map((name, index) => (
                   <div key={index}>
                     <label className="text-sm font-medium text-gray-700">
@@ -125,14 +125,14 @@ const PlayerSetupDialog = ({ isOpen, onPlayersSetup }: PlayerSetupDialogProps) =
                     )}
                   </div>
                 ))}
-                <Button 
-                  onClick={handleNamesSubmit}
-                  disabled={!canProceed}
-                  className="w-full"
-                >
-                  Start Game
-                </Button>
               </div>
+              <Button 
+                onClick={handleNamesSubmit}
+                disabled={!canProceed}
+                className="w-full mt-4 flex-shrink-0"
+              >
+                Start Game
+              </Button>
             </CardContent>
           </Card>
         )}

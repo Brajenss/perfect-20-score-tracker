@@ -2,7 +2,7 @@
 import { Plus, Minus } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Input } from './ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Player } from './Perfect20Game';
 import { useState } from 'react';
 
@@ -30,17 +30,8 @@ const Scoreboard = ({ players, onQuickAction, gameEnded }: ScoreboardProps) => {
   };
 
   const handleInputChange = (playerName: string, value: string) => {
-    // Allow empty input for better UX
-    if (value === '') {
-      setPlayerInputs(prev => ({
-        ...prev,
-        [playerName]: 1
-      }));
-      return;
-    }
-    
     const numValue = parseInt(value);
-    if (!isNaN(numValue) && numValue >= 1 && numValue <= 5) {
+    if (!isNaN(numValue) && numValue >= 1 && numValue <= 10) {
       setPlayerInputs(prev => ({
         ...prev,
         [playerName]: numValue
@@ -108,16 +99,22 @@ const Scoreboard = ({ players, onQuickAction, gameEnded }: ScoreboardProps) => {
                     <Plus className="w-4 h-4" />
                   </Button>
                   
-                  <Input
-                    type="number"
-                    min="1"
-                    max="5"
-                    value={playerInputs[player.name] || 1}
-                    onChange={(e) => handleInputChange(player.name, e.target.value)}
-                    onFocus={(e) => e.target.select()}
+                  <Select
+                    value={playerInputs[player.name]?.toString() || '1'}
+                    onValueChange={(value) => handleInputChange(player.name, value)}
                     disabled={gameEnded}
-                    className="w-16 h-9 text-center text-sm border-slate-300 focus:border-blue-500"
-                  />
+                  >
+                    <SelectTrigger className="w-16 h-9 text-center text-sm border-slate-300 focus:border-blue-500">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
+                        <SelectItem key={num} value={num.toString()}>
+                          {num}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   
                   <Button
                     size="sm"
@@ -152,20 +149,22 @@ const Scoreboard = ({ players, onQuickAction, gameEnded }: ScoreboardProps) => {
                       <Plus className="w-4 h-4" />
                     </Button>
                     
-                    <Input
-                      type="number"
-                      min="1"
-                      max="5"
-                      value={playerInputs[player.name] || 1}
-                      onChange={(e) => handleInputChange(player.name, e.target.value)}
-                      onFocus={(e) => e.target.select()}
+                    <Select
+                      value={playerInputs[player.name]?.toString() || '1'}
+                      onValueChange={(value) => handleInputChange(player.name, value)}
                       disabled={gameEnded}
-                      className="w-14 h-10 text-center text-sm border-slate-300 focus:border-blue-500 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
-                      style={{
-                        WebkitAppearance: 'none',
-                        MozAppearance: 'textfield'
-                      }}
-                    />
+                    >
+                      <SelectTrigger className="w-14 h-10 text-center text-sm border-slate-300 focus:border-blue-500">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
+                          <SelectItem key={num} value={num.toString()}>
+                            {num}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     
                     <Button
                       size="sm"

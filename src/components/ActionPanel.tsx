@@ -2,7 +2,6 @@
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Input } from './ui/input';
 import { Player } from './Perfect20Game';
 
 interface ActionPanelProps {
@@ -34,17 +33,9 @@ const ActionPanel = ({
   gameEnded,
   canStealFrom
 }: ActionPanelProps) => {
-  const handlePointsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    
-    // Allow empty input for better UX
-    if (value === '') {
-      setActionPoints(1);
-      return;
-    }
-    
+  const handlePointsChange = (value: string) => {
     const numValue = parseInt(value);
-    if (!isNaN(numValue) && numValue >= 1 && numValue <= 5) {
+    if (!isNaN(numValue) && numValue >= 1 && numValue <= 10) {
       setActionPoints(numValue);
     }
   };
@@ -228,23 +219,24 @@ const ActionPanel = ({
         <div className="flex flex-col sm:flex-row items-end gap-4">
           <div className="space-y-2 flex-1 w-full">
             <label className="text-sm font-semibold text-slate-700">
-              Points (1-5) {(actionType === 'Swap') && '(ignored for swap)'}
+              Points (1-10) {(actionType === 'Swap') && '(ignored for swap)'}
             </label>
-            <Input
-              type="number"
-              min="1"
-              max="5"
-              value={actionPoints}
-              onChange={handlePointsChange}
-              onFocus={(e) => e.target.select()}
+            <Select
+              value={actionPoints.toString()}
+              onValueChange={handlePointsChange}
               disabled={gameEnded || actionType === 'Swap'}
-              className="w-full border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-center font-bold text-lg h-12 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
-              style={{
-                WebkitAppearance: 'none',
-                MozAppearance: 'textfield'
-              }}
-              placeholder="1-5"
-            />
+            >
+              <SelectTrigger className="w-full border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-center font-bold text-lg h-12">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
+                  <SelectItem key={num} value={num.toString()}>
+                    {num}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <Button 

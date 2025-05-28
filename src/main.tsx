@@ -1,7 +1,21 @@
 
 import { createRoot } from 'react-dom/client'
-import App from './App.tsx'
 import './index.css'
+
+// Lazy load the App component for code splitting
+const App = lazy(() => import('./App.tsx'));
+
+import { lazy, Suspense } from 'react';
+
+// Simple loading component for instant display
+const LoadingSpinner = () => (
+  <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+      <p className="text-lg font-semibold text-gray-700">Loading Perfect 20...</p>
+    </div>
+  </div>
+);
 
 // Add error handling for deployment
 const container = document.getElementById("root");
@@ -11,7 +25,11 @@ if (!container) {
 } else {
   try {
     const root = createRoot(container);
-    root.render(<App />);
+    root.render(
+      <Suspense fallback={<LoadingSpinner />}>
+        <App />
+      </Suspense>
+    );
     
     // Hide loading indicator if it exists
     const loading = document.getElementById('loading');
