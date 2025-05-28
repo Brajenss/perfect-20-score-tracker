@@ -69,7 +69,7 @@ const PlayerSetupDialog = ({ isOpen, onPlayersSetup }: PlayerSetupDialogProps) =
 
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
-      <DialogContent className="sm:max-w-md max-h-[90vh] flex flex-col">
+      <DialogContent className="sm:max-w-md w-[95vw] max-h-[95vh] flex flex-col">
         <DialogHeader className="flex-shrink-0">
           <DialogTitle className="text-center">
             {step === 'count' ? 'How many players?' : 'Enter player names'}
@@ -106,18 +106,18 @@ const PlayerSetupDialog = ({ isOpen, onPlayersSetup }: PlayerSetupDialogProps) =
           </Card>
         ) : (
           <Card className="flex-1 min-h-0">
-            <CardContent className="p-6 h-full flex flex-col">
-              <div className="flex-1 overflow-y-auto space-y-4 pb-4">
+            <CardContent className="p-4 h-full flex flex-col">
+              <div className="flex-1 overflow-y-auto space-y-3 pb-20 max-h-[60vh]">
                 {playerNames.map((name, index) => (
-                  <div key={index}>
-                    <label className="text-sm font-medium text-gray-700">
+                  <div key={index} className="pb-2">
+                    <label className="text-sm font-medium text-gray-700 block mb-1">
                       Player {index + 1} name (max 5 characters)
                     </label>
                     <Input
                       value={name}
                       onChange={(e) => handlePlayerNameChange(index, e.target.value)}
                       placeholder={`Enter name for player ${index + 1}`}
-                      className={`mt-1 ${nameErrors[index] ? 'border-red-500' : ''}`}
+                      className={`${nameErrors[index] ? 'border-red-500' : ''}`}
                       maxLength={5}
                     />
                     {nameErrors[index] && (
@@ -126,13 +126,15 @@ const PlayerSetupDialog = ({ isOpen, onPlayersSetup }: PlayerSetupDialogProps) =
                   </div>
                 ))}
               </div>
-              <Button 
-                onClick={handleNamesSubmit}
-                disabled={!canProceed}
-                className="w-full mt-4 flex-shrink-0"
-              >
-                Start Game
-              </Button>
+              <div className="pt-4 border-t bg-white sticky bottom-0">
+                <Button 
+                  onClick={handleNamesSubmit}
+                  disabled={!canProceed}
+                  className="w-full"
+                >
+                  Start Game
+                </Button>
+              </div>
             </CardContent>
           </Card>
         )}
