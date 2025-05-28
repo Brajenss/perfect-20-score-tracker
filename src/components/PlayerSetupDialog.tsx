@@ -26,13 +26,16 @@ const PlayerSetupDialog = ({ isOpen, onPlayersSetup }: PlayerSetupDialogProps) =
   };
 
   const handlePlayerNameChange = (index: number, name: string) => {
+    // Limit to 5 characters
+    const truncatedName = name.slice(0, 5);
+    
     const newNames = [...playerNames];
-    newNames[index] = name;
+    newNames[index] = truncatedName;
     setPlayerNames(newNames);
 
     // Check for duplicate names (case-insensitive)
     const newErrors = [...nameErrors];
-    const trimmedName = name.trim().toLowerCase();
+    const trimmedName = truncatedName.trim().toLowerCase();
     
     if (trimmedName === '') {
       newErrors[index] = '';
@@ -108,13 +111,14 @@ const PlayerSetupDialog = ({ isOpen, onPlayersSetup }: PlayerSetupDialogProps) =
                 {playerNames.map((name, index) => (
                   <div key={index}>
                     <label className="text-sm font-medium text-gray-700">
-                      Player {index + 1} name
+                      Player {index + 1} name (max 5 characters)
                     </label>
                     <Input
                       value={name}
                       onChange={(e) => handlePlayerNameChange(index, e.target.value)}
                       placeholder={`Enter name for player ${index + 1}`}
                       className={`mt-1 ${nameErrors[index] ? 'border-red-500' : ''}`}
+                      maxLength={5}
                     />
                     {nameErrors[index] && (
                       <p className="text-sm text-red-500 mt-1">{nameErrors[index]}</p>

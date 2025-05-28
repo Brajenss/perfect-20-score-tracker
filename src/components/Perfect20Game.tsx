@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Trophy, RefreshCw, Download } from 'lucide-react';
 import { Button } from './ui/button';
@@ -75,13 +76,16 @@ const Perfect20Game = () => {
       setWinner(winningPlayer.name);
       setShowWinnerDialog(true);
       
+      // Log the win automatically
+      addLogEntry(`${winningPlayer.name} wins Game ${currentGameNumber}.`);
+      
       // Update wins count
       setWins(prev => ({
         ...prev,
         [winningPlayer.name]: (prev[winningPlayer.name] || 0) + 1
       }));
     }
-  }, [players, winner]);
+  }, [players, winner, currentGameNumber]);
 
   const handlePlayersSetup = (playerNames: string[]) => {
     const newPlayers = playerNames.map(name => ({ name, score: 0 }));
@@ -220,14 +224,35 @@ const Perfect20Game = () => {
   };
 
   const startNewGame = () => {
+    // If there's no winner yet, erase logs from current game
+    if (!winner) {
+      setGameLog(prev => prev.filter(action => action.gameNumber !== currentGameNumber));
+    } else {
+      // If there was a winner, increment game number for next game
+      setCurrentGameNumber(prev => prev + 1);
+    }
+    
     setPlayers(prev => prev.map(player => ({ ...player, score: 0 })));
     setWinner(null);
     setShowWinnerDialog(false);
     setActionPoints(1);
     
-    // Don't clear game log - preserve logs from all games
-    setCurrentGameNumber(prev => prev + 1);
-    addLogEntry('New game started. All scores reset to 0.');
+    // Add log entry for new game with correct game number
+    const nextGameNumber = winner ? currentGameNumber + 1 : currentGameNumber;
+    const newAction: GameAction = {
+      id: Date.now().toString(),
+      timestamp: new Date(),
+      description: 'New game started. All scores reset to 0.',
+      gameNumber: nextGameNumber
+    };
+    setGameLog(prev => [newAction, ...prev]);
+    
+    if (!winner) {
+      // If no winner, stay on same game number
+      // Game number already set correctly above
+    } else {
+      // Game number will be incremented above
+    }
   };
 
   const resetEverything = () => {
