@@ -132,29 +132,22 @@ const Scoreboard = ({ players, onQuickAction, gameEnded }: ScoreboardProps) => {
               </div>
 
               {/* Mobile Layout */}
-              <div className="sm:hidden space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold text-slate-700 text-lg">{player.name}</h3>
-                  <span className={`text-2xl font-bold ${getScoreColor(player.score)}`}>
-                    {player.score}/20
-                  </span>
-                </div>
-                
-                <div className="w-full bg-slate-200 rounded-full h-3">
-                  <div 
-                    className={`h-3 rounded-full transition-all duration-300 ${getProgressColor(player.score)}`}
-                    style={{ width: `${(player.score / 20) * 100}%` }}
-                  />
-                </div>
-
-                <div className="flex justify-center">
-                  <div className="flex flex-col items-center space-y-2">
+              <div className="sm:hidden">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-slate-700 text-lg mb-1">{player.name}</h3>
+                    <span className={`text-2xl font-bold ${getScoreColor(player.score)}`}>
+                      {player.score}/20
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => handleAdd(player.name)}
                       disabled={gameEnded || player.score >= 20}
-                      className="w-12 h-12 hover:bg-emerald-50 hover:border-emerald-300 border-slate-300"
+                      className="w-10 h-10 p-0 hover:bg-emerald-50 hover:border-emerald-300 border-slate-300"
                     >
                       <Plus className="w-4 h-4" />
                     </Button>
@@ -167,7 +160,11 @@ const Scoreboard = ({ players, onQuickAction, gameEnded }: ScoreboardProps) => {
                       onChange={(e) => handleInputChange(player.name, e.target.value)}
                       onFocus={(e) => e.target.select()}
                       disabled={gameEnded}
-                      className="w-16 h-10 text-center text-sm border-slate-300 focus:border-blue-500"
+                      className="w-14 h-10 text-center text-sm border-slate-300 focus:border-blue-500 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
+                      style={{
+                        WebkitAppearance: 'none',
+                        MozAppearance: 'textfield'
+                      }}
                     />
                     
                     <Button
@@ -175,11 +172,18 @@ const Scoreboard = ({ players, onQuickAction, gameEnded }: ScoreboardProps) => {
                       variant="outline"
                       onClick={() => handleDeduct(player.name)}
                       disabled={gameEnded || !canDeduct(player, playerInputs[player.name] || 1)}
-                      className="w-12 h-12 hover:bg-red-50 hover:border-red-300 border-slate-300"
+                      className="w-10 h-10 p-0 hover:bg-red-50 hover:border-red-300 border-slate-300"
                     >
                       <Minus className="w-4 h-4" />
                     </Button>
                   </div>
+                </div>
+                
+                <div className="w-full bg-slate-200 rounded-full h-3">
+                  <div 
+                    className={`h-3 rounded-full transition-all duration-300 ${getProgressColor(player.score)}`}
+                    style={{ width: `${(player.score / 20) * 100}%` }}
+                  />
                 </div>
               </div>
             </div>

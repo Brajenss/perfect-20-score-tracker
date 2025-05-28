@@ -1,3 +1,4 @@
+
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
@@ -224,8 +225,8 @@ const ActionPanel = ({
           </div>
         </div>
 
-        <div className="flex items-end gap-4">
-          <div className="space-y-2 flex-1">
+        <div className="flex flex-col sm:flex-row items-end gap-4">
+          <div className="space-y-2 flex-1 w-full">
             <label className="text-sm font-semibold text-slate-700">
               Points (1-5) {(actionType === 'Swap') && '(ignored for swap)'}
             </label>
@@ -237,7 +238,11 @@ const ActionPanel = ({
               onChange={handlePointsChange}
               onFocus={(e) => e.target.select()}
               disabled={gameEnded || actionType === 'Swap'}
-              className="w-full border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-center font-bold text-lg"
+              className="w-full border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-center font-bold text-lg h-12 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
+              style={{
+                WebkitAppearance: 'none',
+                MozAppearance: 'textfield'
+              }}
               placeholder="1-5"
             />
           </div>
@@ -245,7 +250,7 @@ const ActionPanel = ({
           <Button 
             onClick={onApplyAction}
             disabled={isActionDisabled()}
-            className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-8 py-3 font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+            className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-8 py-3 font-semibold shadow-lg hover:shadow-xl transition-all duration-200 w-full sm:w-auto h-12"
           >
             Apply Action
           </Button>
