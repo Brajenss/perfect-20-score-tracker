@@ -25,28 +25,19 @@ const PlayerSetupDialog = ({ isOpen, onPlayersSetup }: PlayerSetupDialogProps) =
     }
   };
 
-  const validatePlayerName = (name: string) => {
-    // Check if name contains numbers or spaces
-    const hasNumbersOrSpaces = /[\d\s]/.test(name);
-    return hasNumbersOrSpaces ? 'Numbers and spaces are not allowed' : '';
-  };
-
   const handlePlayerNameChange = (index: number, name: string) => {
-    // Limit to 5 characters and remove numbers/spaces
     const filteredName = name.replace(/[\d\s]/g, '').slice(0, 5);
     
     const newNames = [...playerNames];
     newNames[index] = filteredName;
     setPlayerNames(newNames);
 
-    // Check for validation errors
     const newErrors = [...nameErrors];
     const trimmedName = filteredName.trim().toLowerCase();
     
     if (trimmedName === '') {
       newErrors[index] = '';
     } else {
-      // Check for duplicate names (case-insensitive)
       const isDuplicate = newNames.some((otherName, otherIndex) => 
         otherIndex !== index && 
         otherName.trim().toLowerCase() === trimmedName
@@ -76,7 +67,7 @@ const PlayerSetupDialog = ({ isOpen, onPlayersSetup }: PlayerSetupDialogProps) =
 
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
-      <DialogContent className="sm:max-w-md w-[95vw] max-h-[95vh] flex flex-col">
+      <DialogContent className="sm:max-w-md w-[95vw] h-[90vh] flex flex-col">
         <DialogHeader className="flex-shrink-0">
           <DialogTitle className="text-center">
             {step === 'count' ? 'How many players?' : 'Enter player names'}
@@ -112,32 +103,29 @@ const PlayerSetupDialog = ({ isOpen, onPlayersSetup }: PlayerSetupDialogProps) =
             </CardContent>
           </Card>
         ) : (
-          <div className="flex-1 min-h-0 flex flex-col">
-            <Card className="flex-1 min-h-0">
-              <CardContent className="p-4 h-full flex flex-col">
-                <div className="flex-1 overflow-y-auto space-y-3 min-h-0">
-                  {playerNames.map((name, index) => (
-                    <div key={index} className="pb-2">
-                      <label className="text-sm font-medium text-gray-700 block mb-1">
-                        Player {index + 1} name (max 5 characters, letters & symbols only)
-                      </label>
-                      <Input
-                        value={name}
-                        onChange={(e) => handlePlayerNameChange(index, e.target.value)}
-                        placeholder={`Enter name for player ${index + 1}`}
-                        className={`${nameErrors[index] ? 'border-red-500' : ''}`}
-                        maxLength={5}
-                      />
-                      {nameErrors[index] && (
-                        <p className="text-sm text-red-500 mt-1">{nameErrors[index]}</p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+          <div className="flex-1 flex flex-col min-h-0">
+            <div className="flex-1 overflow-y-auto px-4 py-2">
+              <div className="space-y-4 pb-20">
+                {playerNames.map((name, index) => (
+                  <div key={index}>
+                    <label className="text-sm font-medium text-gray-700 block mb-1">
+                      Player {index + 1}
+                    </label>
+                    <Input
+                      value={name}
+                      onChange={(e) => handlePlayerNameChange(index, e.target.value)}
+                      placeholder={`Enter name for player ${index + 1}`}
+                      className={`${nameErrors[index] ? 'border-red-500' : ''}`}
+                      maxLength={5}
+                    />
+                    {nameErrors[index] && (
+                      <p className="text-sm text-red-500 mt-1">{nameErrors[index]}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
             
-            {/* Fixed button container outside the scrollable area */}
             <div className="flex-shrink-0 p-4 border-t bg-white">
               <Button 
                 onClick={handleNamesSubmit}
