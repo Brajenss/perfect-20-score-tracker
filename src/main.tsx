@@ -1,11 +1,10 @@
 
 import { createRoot } from 'react-dom/client'
+import { lazy, Suspense } from 'react';
 import './index.css'
 
 // Lazy load the App component for code splitting
 const App = lazy(() => import('./App.tsx'));
-
-import { lazy, Suspense } from 'react';
 
 // Simple loading component for instant display
 const LoadingSpinner = () => (
