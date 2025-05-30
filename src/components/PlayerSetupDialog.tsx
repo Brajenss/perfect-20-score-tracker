@@ -26,7 +26,7 @@ const PlayerSetupDialog = ({ isOpen, onPlayersSetup }: PlayerSetupDialogProps) =
   };
 
   const handlePlayerNameChange = (index: number, name: string) => {
-    const filteredName = name.replace(/[\d\s]/g, '').slice(0, 5);
+    const filteredName = name.replace(/[\d\s]/g, '').slice(0, 10);
     
     const newNames = [...playerNames];
     newNames[index] = filteredName;
@@ -65,21 +65,31 @@ const PlayerSetupDialog = ({ isOpen, onPlayersSetup }: PlayerSetupDialogProps) =
     ? playerCount && parseInt(playerCount) >= 2 && parseInt(playerCount) <= 10
     : playerNames.every(name => name.trim() !== '') && nameErrors.every(error => error === '');
 
+  // Calculate dynamic height based on number of players
+  const getDialogHeight = () => {
+    if (step === 'count') return 'h-auto';
+    const baseHeight = 200; // Header + button area
+    const playerInputHeight = 80; // Each player input with spacing
+    const calculatedHeight = baseHeight + (playerNames.length * playerInputHeight);
+    const maxHeight = Math.min(calculatedHeight, window.innerHeight * 0.9);
+    return `max-h-[${maxHeight}px]`;
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
-      <DialogContent className="sm:max-w-md w-[95vw] h-[90vh] flex flex-col">
-        <DialogHeader className="flex-shrink-0">
-          <DialogTitle className="text-center">
+      <DialogContent className={`sm:max-w-md w-[95vw] ${step === 'count' ? 'h-auto' : 'h-[85vh]'} flex flex-col`}>
+        <DialogHeader className="flex-shrink-0 pb-3">
+          <DialogTitle className="text-center text-lg">
             {step === 'count' ? 'How many players?' : 'Enter player names'}
           </DialogTitle>
         </DialogHeader>
         
         {step === 'count' ? (
-          <Card className="flex-1">
-            <CardContent className="p-6">
-              <div className="space-y-4">
+          <Card className="flex-shrink-0">
+            <CardContent className="p-4">
+              <div className="space-y-3">
                 <div>
-                  <label className="text-sm font-medium text-gray-700">
+                  <label className="text-sm font-medium text-gray-700 block mb-2">
                     Number of players (2-10)
                   </label>
                   <Input
@@ -88,8 +98,8 @@ const PlayerSetupDialog = ({ isOpen, onPlayersSetup }: PlayerSetupDialogProps) =
                     max="10"
                     value={playerCount}
                     onChange={(e) => setPlayerCount(e.target.value)}
-                    placeholder="Enter number of players"
-                    className="mt-2"
+                    placeholder="Enter number"
+                    className="text-center"
                   />
                 </div>
                 <Button 
@@ -104,33 +114,34 @@ const PlayerSetupDialog = ({ isOpen, onPlayersSetup }: PlayerSetupDialogProps) =
           </Card>
         ) : (
           <div className="flex-1 flex flex-col min-h-0">
-            <div className="flex-1 overflow-y-auto px-4 py-2">
-              <div className="space-y-4 pb-20">
+            <div className="flex-1 overflow-y-auto px-2 py-1">
+              <div className="space-y-3 pb-4">
                 {playerNames.map((name, index) => (
-                  <div key={index}>
-                    <label className="text-sm font-medium text-gray-700 block mb-1">
+                  <div key={index} className="space-y-1">
+                    <label className="text-xs font-medium text-gray-700 block">
                       Player {index + 1}
                     </label>
                     <Input
                       value={name}
                       onChange={(e) => handlePlayerNameChange(index, e.target.value)}
-                      placeholder={`Enter name for player ${index + 1}`}
-                      className={`${nameErrors[index] ? 'border-red-500' : ''}`}
-                      maxLength={5}
+                      placeholder={`Enter name`}
+                      className={`${nameErrors[index] ? 'border-red-500' : ''} text-sm`}
+                      maxLength={10}
+                      style={{ fontSize: '14px' }}
                     />
                     {nameErrors[index] && (
-                      <p className="text-sm text-red-500 mt-1">{nameErrors[index]}</p>
+                      <p className="text-xs text-red-500">{nameErrors[index]}</p>
                     )}
                   </div>
                 ))}
               </div>
             </div>
             
-            <div className="flex-shrink-0 p-4 border-t bg-white">
+            <div className="flex-shrink-0 p-3 border-t bg-white">
               <Button 
                 onClick={handleNamesSubmit}
                 disabled={!canProceed}
-                className="w-full"
+                className="w-full text-sm"
               >
                 Start Game
               </Button>
