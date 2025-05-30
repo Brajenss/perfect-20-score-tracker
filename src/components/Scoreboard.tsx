@@ -66,35 +66,38 @@ const Scoreboard = ({ players, onQuickAction, gameEnded }: ScoreboardProps) => {
               className="p-5 rounded-xl border border-slate-200 bg-white hover:shadow-md transition-all duration-200"
             >
               {/* Desktop Layout */}
-              <div className="hidden sm:flex items-center justify-between">
-                <div className="flex items-center space-x-4 flex-1">
-                  <div className="w-24">
-                    <h3 className="font-semibold text-slate-700">{player.name}</h3>
+              <div className="hidden sm:grid sm:grid-cols-12 sm:gap-4 sm:items-center">
+                {/* Player Name - Fixed width to prevent sliding */}
+                <div className="col-span-3">
+                  <h3 className="font-medium text-slate-700 text-sm truncate" title={player.name}>
+                    {player.name}
+                  </h3>
+                </div>
+                
+                {/* Score Display - Fixed width */}
+                <div className="col-span-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className={`text-2xl font-bold ${getScoreColor(player.score)}`}>
+                      {player.score}
+                    </span>
+                    <span className="text-sm text-slate-500">/ 20</span>
                   </div>
-                  
-                  <div className="flex-1 max-w-xs">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className={`text-3xl font-bold ${getScoreColor(player.score)}`}>
-                        {player.score}
-                      </span>
-                      <span className="text-sm text-slate-500">/ 20</span>
-                    </div>
-                    <div className="w-full bg-slate-200 rounded-full h-3">
-                      <div 
-                        className={`h-3 rounded-full transition-all duration-300 ${getProgressColor(player.score)}`}
-                        style={{ width: `${(player.score / 20) * 100}%` }}
-                      />
-                    </div>
+                  <div className="w-full bg-slate-200 rounded-full h-3">
+                    <div 
+                      className={`h-3 rounded-full transition-all duration-300 ${getProgressColor(player.score)}`}
+                      style={{ width: `${(player.score / 20) * 100}%` }}
+                    />
                   </div>
                 </div>
 
-                <div className="flex items-center space-x-3">
+                {/* Controls - Fixed width and positioned */}
+                <div className="col-span-5 flex items-center justify-end space-x-3">
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => handleAdd(player.name)}
                     disabled={gameEnded || player.score >= 20}
-                    className="hover:bg-emerald-50 hover:border-emerald-300 border-slate-300"
+                    className="w-9 h-9 p-0 hover:bg-emerald-50 hover:border-emerald-300 border-slate-300"
                   >
                     <Plus className="w-4 h-4" />
                   </Button>
@@ -121,7 +124,7 @@ const Scoreboard = ({ players, onQuickAction, gameEnded }: ScoreboardProps) => {
                     variant="outline"
                     onClick={() => handleDeduct(player.name)}
                     disabled={gameEnded || !canDeduct(player, playerInputs[player.name] || 1)}
-                    className="hover:bg-red-50 hover:border-red-300 border-slate-300"
+                    className="w-9 h-9 p-0 hover:bg-red-50 hover:border-red-300 border-slate-300"
                   >
                     <Minus className="w-4 h-4" />
                   </Button>
@@ -130,12 +133,25 @@ const Scoreboard = ({ players, onQuickAction, gameEnded }: ScoreboardProps) => {
 
               {/* Mobile Layout */}
               <div className="sm:hidden">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-slate-700 text-lg mb-1">{player.name}</h3>
+                {/* Player Name Row - Higher height and smaller font */}
+                <div className="mb-4 h-8 flex items-center">
+                  <h3 className="font-medium text-slate-700 text-base truncate" title={player.name}>
+                    {player.name}
+                  </h3>
+                </div>
+                
+                {/* Score and Controls Row - Positioned lower */}
+                <div className="flex items-center justify-between">
+                  <div className="flex-1 mr-4">
                     <span className={`text-2xl font-bold ${getScoreColor(player.score)}`}>
                       {player.score}/20
                     </span>
+                    <div className="w-full bg-slate-200 rounded-full h-3 mt-2">
+                      <div 
+                        className={`h-3 rounded-full transition-all duration-300 ${getProgressColor(player.score)}`}
+                        style={{ width: `${(player.score / 20) * 100}%` }}
+                      />
+                    </div>
                   </div>
                   
                   <div className="flex items-center space-x-2">
@@ -176,13 +192,6 @@ const Scoreboard = ({ players, onQuickAction, gameEnded }: ScoreboardProps) => {
                       <Minus className="w-4 h-4" />
                     </Button>
                   </div>
-                </div>
-                
-                <div className="w-full bg-slate-200 rounded-full h-3">
-                  <div 
-                    className={`h-3 rounded-full transition-all duration-300 ${getProgressColor(player.score)}`}
-                    style={{ width: `${(player.score / 20) * 100}%` }}
-                  />
                 </div>
               </div>
             </div>

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -25,15 +24,26 @@ const PlayerSetupDialog = ({ isOpen, onPlayersSetup }: PlayerSetupDialogProps) =
     }
   };
 
+  const formatName = (name: string) => {
+    // Remove all non-alphabetic characters and limit to 10 characters
+    const alphabetsOnly = name.replace(/[^a-zA-Z]/g, '').slice(0, 10);
+    
+    // Capitalize first letter and make rest lowercase
+    if (alphabetsOnly.length > 0) {
+      return alphabetsOnly.charAt(0).toUpperCase() + alphabetsOnly.slice(1).toLowerCase();
+    }
+    return alphabetsOnly;
+  };
+
   const handlePlayerNameChange = (index: number, name: string) => {
-    const filteredName = name.replace(/[\d\s]/g, '').slice(0, 10);
+    const formattedName = formatName(name);
     
     const newNames = [...playerNames];
-    newNames[index] = filteredName;
+    newNames[index] = formattedName;
     setPlayerNames(newNames);
 
     const newErrors = [...nameErrors];
-    const trimmedName = filteredName.trim().toLowerCase();
+    const trimmedName = formattedName.trim().toLowerCase();
     
     if (trimmedName === '') {
       newErrors[index] = '';
