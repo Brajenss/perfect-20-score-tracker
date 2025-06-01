@@ -1,6 +1,5 @@
-
 import { useEffect, useState } from 'react';
-import { Fireworks } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 
 const Confetti = () => {
   const [particles, setParticles] = useState<Array<{
@@ -97,7 +96,7 @@ const Confetti = () => {
           }}
         >
           {particle.type === 'firework' && (
-            <Fireworks 
+            <Sparkles 
               size={32} 
               style={{ color: particle.color }} 
               className="animate-spin"
