@@ -30,7 +30,7 @@ const ActionControls = ({
     <div className="flex flex-col sm:flex-row items-end gap-4">
       <div className="space-y-2 flex-1 w-full">
         <label className="text-sm font-semibold text-slate-700">
-          Points (1-10) {(actionType === 'Swap') && '(ignored for swap)'}
+          Points (1-10)
         </label>
         <Select
           value={actionPoints.toString()}
